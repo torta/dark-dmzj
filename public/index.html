@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="referrer" content="no-referrer"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="white">
+  <meta name="wap-font-scale" content="no">
+  <title>Dark Dmzj</title>
+  <link href="https://m.dmzj.com/css/global.css?2015111317" rel="stylesheet" type="text/css"/>
+  <link type="text/css" href="https://m.dmzj.com/css/style.css?2015102217" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" />
+  <style type="text/css">
+    body, .UpdateList {
+      background: rgb(30, 30, 30);
+    }
+    .UpdateList .itemBox {
+      border-bottom: 1px solid rgb(90, 90, 90);
+    }
+    .UpdateList .itemTxt .title, .UpdateList .itemTxt .txtItme, .UpdateList .coll {
+      color: #fff;
+    }
+    .header {
+      background: transparent;
+    }
+    .header .serCh {
+      background: rgb(60, 60, 60);
+    }
+    .searInput, .searClose, .searBtn {
+      border: 1px solid rgb(129, 129, 129);
+      background-color: rgb(110, 110, 110);
+      color: #fff;
+    }
+    .github-fork-ribbon.right-bottom:before {
+        background-color: #333;
+    }
+    .messagSjr {
+      background: rgb(60, 60, 60);
+      color: #fff;
+      top: 44px;
+      display: none;
+    }
+    @media (min-width: 1281px) {
+      .messagSjr {
+        display: block;
+      }
+      .header {
+        height: 146px;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.22/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@8.17.0/dist/lazyload.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://unpkg.com/unfetch/polyfill"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div class="serCh" id="serCh" style="display: block;">
+        <div id="searchForm" action="">
+          <a href="javascript:void(0);" @click="searchClear" class="searClose"></a>
+          <a href="javascript:void(0);" @click="searchAction" class="searBtn"></a>
+          <div class="serChinputBox"><input @keyup.enter="searchAction" v-model.trim="keyword" type="search" class="searInput" placeholder="漫画名或作者" id="searInput"></div>
+        </div>
+      </div>
+      <div class="messagSjr" style="padding-bottom: 20px;">
+        <ul class="keyTit" id="messagelist">
+          <li>1. 下载安装动漫之家手机APP.</li>
+          <li>2. 手机浏览器打开 https://dark-dmzj.hloli.net</li>
+        </ul>
+      </div>
+    </div>
+    <div class="UpdateList">
+      <div class="itemBox" v-for="item in items" :key="item.id">
+        <div class="itemImg">
+          <a :href="url_scheme + item.id" title=""><img :class="'lazy'" :data-src="item.cover.replace(/https?:\/\/images\.dmzj\.com/, '')" width="100%"/></a>
+        </div>
+        <div class="itemTxt">
+          <a :href="url_scheme + item.id" class="title">{{ item.title }}</a>
+          <p class="txtItme">{{ item.authors.join('/') }}<span class="icon icon01"></span></p>
+          <p class="txtItme">
+            <span class="icon icon02"></span>
+            <span class="pd" v-for="type in item.types">{{ type }}</span>
+          </p>
+          <p class="txtItme">
+            <span class="icon icon03"></span>
+            <span class="date">{{ moment(item.last_updatetime * 1000).format('YYYY-MM-DD H:mm') }}</span>
+          </p>
+        </div>
+        <a :href="url_scheme + item.id" class="coll">{{ item.last_update_chapter_name }}</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+      var lz = new LazyLoad({ elements_selector: ".lazy" });
+      var data = [[], []];
+      var iOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
+      new Vue({
+        el: '#app',
+        data: {
+          keyword: "",
+          items: [],
+          url_scheme: iOS ? 'dmzj://objectIntro/comic?objId=' : 'dmzjandroid://www.dmzj.com/cartoon_description?id='
+        },
+        methods: {
+          loadMore: function loadMore() {
+            var _items;
+
+            (_items = this.items).push.apply(_items, _toConsumableArray(data[0].splice(0, 20)));
+            Vue.nextTick(function () {
+              return lz.update();
+            });
+          },
+          searchClear: function searchClear() {
+            var _this = this;
+
+            this.keyword = '';
+            Vue.nextTick(function () {
+              return _this.searchAction();
+            });
+          },
+          searchAction: function searchAction() {
+            var keyword = this.keyword.toLowerCase();
+            if (this.keyword.length === 0) {
+              data[0] = data[1].slice(0);
+            } else {
+              data[0] = data[1].filter(function (e) {
+                return e.title.toLowerCase().indexOf(keyword) > -1 || e.authors.join().toLowerCase().indexOf(keyword) > -1;
+              });
+            }
+            this.items = [];
+            this.loadMore();
+          }
+        },
+        created: function created() {
+          var _this2 = this;
+
+          fetch('data.json').then(function (e) {
+            return e.json();
+          }).then(function (e) {
+            return data = [e, e.slice(0)];
+          }).then(function () {
+            window.onscroll = function () {
+              if (window.innerHeight + (window.pageYOffset || document.documentElement.scrollTop) > _this2.$el.offsetHeight - 100) {
+                _this2.loadMore();
+              }
+            };
+          }).then(this.loadMore);
+        }
+      });
+    })();
+  </script>
+  <a class="github-fork-ribbon right-bottom fixed" href="https://github.com/torta/dark-dmzj" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+</body>
+</html>

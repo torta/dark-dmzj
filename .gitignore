@@ -1,0 +1,5 @@
+*.exe
+/go.sum
+/dark_dmzj
+/public/data.json
+/test

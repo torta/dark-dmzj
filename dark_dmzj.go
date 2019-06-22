@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/tidwall/gjson"
 	"gopkg.in/cheggaaa/pb.v1"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -52,17 +53,20 @@ func apiWithRetry(id int, try int) string {
 	for i := 0; i < try; i++ {
 		domains := []string{"v2.api.dmzj.com", "v3api.dmzj.com"}
 		res, err := client.Get(fmt.Sprintf("http://%s/comic/%d.json", domains[rand.Intn(2)], id))
-		resCk, errCk := client.Head(fmt.Sprintf("https://m.dmzj.com/info/%d.html", id))
+		resCk, errCk := client.Get(fmt.Sprintf("https://m.dmzj.com/info/%d.html", id))
 		if err == nil {
 			defer res.Body.Close()
+			defer io.Copy(ioutil.Discard, res.Body)
 		}
 		if errCk == nil {
 			defer resCk.Body.Close()
+			defer io.Copy(ioutil.Discard, resCk.Body)
 		}
 		if err == nil && res.StatusCode == 200 {
 			body, _ := ioutil.ReadAll(res.Body)
-			if errCk == nil && resCk.StatusCode == 200 && resCk.ContentLength > 0 {
-				if resCk.ContentLength > 1024 {
+			if errCk == nil && resCk.StatusCode == 200 {
+				bodyCk, _ := ioutil.ReadAll(resCk.Body)
+				if len(bodyCk) > 1024 {
 					return ""
 				}
 				return string(body)
@@ -174,7 +178,7 @@ func main() {
 		Level: 5,
 	}))
 	e.GET("/webpic/*", func(c echo.Context) error {
-		req, _ := http.NewRequest("GET", fmt.Sprintf("http://images.dmzj.com/%s", c.Request().URL.Path), nil)
+		req, _ := http.NewRequest("GET", fmt.Sprintf("http://images.dmzj.com%s", c.Request().URL.Path), nil)
 		req.Header.Set("Referer", "https://m.dmzj.com/")
 		res, err := client.Do(req)
 		if err != nil {

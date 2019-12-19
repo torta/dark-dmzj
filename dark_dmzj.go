@@ -13,9 +13,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/signal"
+	"path/filepath"
 	"sort"
-	"syscall"
 	"time"
 )
 
@@ -46,6 +45,17 @@ func init() {
 			TLSNextProto:          make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
 		},
 		Timeout: time.Second * 10,
+	}
+
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	if _, err := os.Stat(filepath.Join(exPath, "public", "index.html")); !os.IsNotExist(err) {
+		if err := os.Chdir(exPath); err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -158,17 +168,6 @@ func main() {
 	go func() {
 		time.Sleep(1 * time.Second)
 		downloadBooks()
-	}()
-
-	func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGUSR1)
-		go func() {
-			for {
-				<-c
-				downloadBooks()
-			}
-		}()
 	}()
 
 	e := echo.New()

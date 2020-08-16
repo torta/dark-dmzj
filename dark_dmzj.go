@@ -63,7 +63,7 @@ func apiWithRetry(id int, try int) string {
 	for i := 0; i < try; i++ {
 		domains := []string{"v2.api.dmzj.com", "v3api.dmzj.com"}
 		res, err := client.Get(fmt.Sprintf("http://%s/comic/%d.json", domains[rand.Intn(2)], id))
-		resCk, errCk := client.Get(fmt.Sprintf("https://m.dmzj.com/info/%d.html", id))
+		resCk, errCk := client.Get(fmt.Sprintf("https://api.m.dmzj.com/info/%d.html", id))
 		if err == nil {
 			defer res.Body.Close()
 			defer io.Copy(ioutil.Discard, res.Body)

@@ -61,8 +61,8 @@ func init() {
 
 func apiWithRetry(id int, try int) string {
 	for i := 0; i < try; i++ {
-		domains := []string{"v2.api.dmzj.com", "v3api.dmzj.com"}
-		res, err := client.Get(fmt.Sprintf("http://%s/comic/%d.json", domains[rand.Intn(2)], id))
+		domains := []string{"v3api.dmzj1.com/comic/comic_"}
+		res, err := client.Get(fmt.Sprintf("http://%s%d.json", domains[rand.Intn(1)], id))
 		resCk, errCk := client.Get(fmt.Sprintf("https://api.m.dmzj.com/info/%d.html", id))
 		if err == nil {
 			defer res.Body.Close()
@@ -107,7 +107,7 @@ func downloadBooks() {
 	defer func() { isDownloading = false }()
 
 	MaxRoutines := 50
-	MaxBooks := 60000
+	MaxBooks := 70000
 
 	bar = pb.New(MaxBooks - 1).Prefix("Updating ")
 	bar.SetWidth(60)

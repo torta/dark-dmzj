@@ -116,14 +116,16 @@
         },
         methods: {
           formatUrl: function formatUrl(item) {
-              return ~~this.clientVer === 2
-                  ? "dmzjsq://dmzj.com/comicReader?comicId=" +
-                        item.id +
-                        "&chapterId=" +
-                        item.last_update_chapter_id
-                  : iOS
-                  ? "dmzj://objectIntro/comic?objId=" + item.id
-                  : "dmzj://dmzj.com/comic?id=" + item.id;
+            return ~~this.clientVer === 2
+                ? iOS
+                    ? "dmzjsq://dmzj.com/comicReader?comicId=" +
+                      item.id +
+                      "&chapterId=" +
+                      item.last_update_chapter_id
+                    : "dmzj1://dmzj1.com/comic?id=" + item.id
+                : iOS
+                ? "dmzj://objectIntro/comic?objId=" + item.id
+                : "dmzj://dmzj.com/comic?id=" + item.id;
           },
           loadMore: function loadMore() {
             var _items;

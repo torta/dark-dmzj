@@ -74,12 +74,19 @@
       </div>
     </div>
     <div class="UpdateList">
+      <div class="ClientVer" style="color: #fff; font-size: 14px; padding: 10px; text-align: right;">
+        <input type="radio" id="cver1" v-model="clientVer" value="1" />
+        <label for="cver1">动漫之家</label>
+        /
+        <input type="radio" id="cver2" v-model="clientVer" value="2" />
+        <label for="cver2">动漫之家社区</label>
+      </div>
       <div class="itemBox" v-for="item in items" :key="item.id">
         <div class="itemImg">
-          <a :href="url_scheme + item.id" title=""><img :class="'lazy'" :data-src="item.cover.replace(/https?:\/\/images\.dmzj\.com/, '')" width="100%"/></a>
+          <a :href="formatUrl(item)" title=""><img :class="'lazy'" :data-src="item.cover.replace(/https?:\/\/images\.dmzj\.com/, '')" width="100%"/></a>
         </div>
         <div class="itemTxt">
-          <a :href="url_scheme + item.id" class="title">{{ item.title }}</a>
+          <a :href="formatUrl(item)" class="title">{{ item.title }}</a>
           <p class="txtItme">{{ item.authors.join('/') }}<span class="icon icon01"></span></p>
           <p class="txtItme">
             <span class="icon icon02"></span>
@@ -90,7 +97,7 @@
             <span class="date">{{ moment(item.last_updatetime * 1000).format('YYYY-MM-DD H:mm') }}</span>
           </p>
         </div>
-        <a :href="url_scheme + item.id" class="coll">{{ item.last_update_chapter_name }}</a>
+        <a :href="formatUrl(item)" class="coll">{{ item.last_update_chapter_name }}</a>
       </div>
     </div>
   </div>
@@ -105,9 +112,19 @@
         data: {
           keyword: "",
           items: [],
-          url_scheme: iOS ? 'dmzj://objectIntro/comic?objId=' : 'dmzj://dmzj.com/comic?id='
+          clientVer: 2,
         },
         methods: {
+          formatUrl: function formatUrl(item) {
+              return ~~this.clientVer === 2
+                  ? "dmzjsq://dmzj.com/comicReader?comicId=" +
+                        item.id +
+                        "&chapterId=" +
+                        item.last_update_chapter_id
+                  : iOS
+                  ? "dmzj://objectIntro/comic?objId=" + item.id
+                  : "dmzj://dmzj.com/comic?id=" + item.id;
+          },
           loadMore: function loadMore() {
             var _items;
 

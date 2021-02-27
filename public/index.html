@@ -112,7 +112,12 @@
         data: {
           keyword: "",
           items: [],
-          clientVer: 2,
+          clientVer: (window.localStorage && localStorage.getItem("cver")) || 2,
+        },
+        watch: {
+          clientVer: function(val, oldVal) {
+            window.localStorage && localStorage.setItem("cver", val);
+          }
         },
         methods: {
           formatUrl: function formatUrl(item) {
